@@ -7,6 +7,11 @@ const user = mongoose.model("User", new mongoose.Schema({
     unique: true,
     match: /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
   },
+  user_name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   password: {
     type: String,
     required: true

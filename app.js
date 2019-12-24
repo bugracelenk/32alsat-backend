@@ -7,6 +7,7 @@ require("./models/profile");
 require("./models/user");
 
 const userRoute = require("./routes/users");
+const profileRoute = require("./routes/profiles");
 
 mongoose
   .connect(
@@ -34,5 +35,6 @@ app.use((req, res, next) => { //CORS İzinleri
 });
 
 app.use("/api/users", userRoute);
+app.use("/api/profiles", profileRoute);
 
 module.exports = app;

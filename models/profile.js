@@ -15,7 +15,7 @@ const profile = mongoose.model("Profile", new mongoose.Schema({
   },
   profile_type: {
     type: String,
-    enum: ["magaza", "normal"],
+    enum: ["magaza", "normal", "admin"],
     default: "normal"
   },
   ilanlar: [{
@@ -56,6 +56,15 @@ const profile = mongoose.model("Profile", new mongoose.Schema({
   telefon_no: {
     type: Number,
     required: true
+  },
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  isHidden: {
+    type: Boolean,
+    default: false
   }
 }));
 

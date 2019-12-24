@@ -48,3 +48,46 @@ exports.user_login = (req, res, next) => {
       });
     });
 };
+
+exports.user_register = async (req, res, next) => {
+
+  let isTaken = await mongoose.model("User").findOne({ email: req.body.email });
+  if(isTaken) return res.status(409).json({ message: "Bu eamil adresi kayıtlı."});
+
+  bcrypt.hash(req.body.password, 10, (err, hash) => {
+    if(err) return res.status(500).json({ err });
+    else {
+      let userId = new mongoose.Types.ObjectId();
+      let profileId = new mongoose.Types.ObjectId();
+      const user = {
+        _id: userId,
+        email: req.body.email,
+        password: hash,
+        user_name: req.body.email,
+        profile_id: profileId
+      };
+
+      const profile = {
+        _id: profileId,
+        name: req.body.name,
+        surname: req.body.surname,
+        birth_date: req.body.birth_date,
+        profile_type: req.body.profile_type,
+        adres: req.body.adres,
+        telefon_no: req.body.telefon_no,
+        user_id: userId
+      };
+
+      mongoose.model("User").create(user).then(c_user => {
+        if(!c_user) return res.status(500).json({ err: "Kullanıcı oluşturulamadı, admin ile iletişime geç."});
+        mongoose.model("Profile").create(profile).then(c_profile => {
+          if(!c_profile) return res.status(500).json({ err: "Profil oluşturulamadı, admin ile iletişime geç."});
+          return res.status(201).json({ message: "Kullanıcı oluşturuldu", c_profile });
+        });
+      })
+    }
+  }).catch(err => {
+    console.log(err);
+    return res.status(500).json({ err });
+  })
+}
