@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
-exports.get_profile = (req, res, next) => {
+exports.get_store = (req, res, next) => {
   const profile_id = req.userData.profile_id;
 
   mongoose
-    .model("Profile")
+    .model("Store")
     .findOne({ _id: profile_id })
-    .select("-__v -user_id -store_name -urunler")
+    .select("-__v -user_id -ilanlar -begendigi_ilanlar")
     .populate("user_id", "-__v, -password -profile_id")
     .populate("followers", "-__v -user_id")
     .populate("followed", "-__v -user_id")
@@ -29,7 +29,7 @@ exports.get_profile = (req, res, next) => {
         }
       } else {
         return res.status(404).json({
-          err: "Profil bulunamadı."
+          err: "Mağaza bulunamadı."
         });
       }
     })
@@ -45,11 +45,11 @@ exports.get_profile = (req, res, next) => {
 // http://localhost:3003/api/profile/asd12938124129asd
 // req.params.profile_id = asd12938124129asd
 
-exports.get_profile_by_id = (req, res, next) => {
+exports.get_store_by_id = (req, res, next) => {
   mongoose
     .model("Profile")
     .findOne({ _id: req.params.profile_id })
-    .select("-__v -user_id -urunler -store_name -urunler")
+    .select("-__v -user_id -ilanlar -begendigi_ilanlar")
     .populate("user_id", "-__v, -password -profile_id")
     .populate("followers", "-__v -user_id")
     .populate("followed", "-__v -user_id")
@@ -72,7 +72,7 @@ exports.get_profile_by_id = (req, res, next) => {
         }
       } else {
         return res.status(404).json({
-          err: "Profil bulunamadı."
+          err: "Mağaza bulunamadı."
         });
       }
     })
@@ -84,7 +84,7 @@ exports.get_profile_by_id = (req, res, next) => {
     });
 };
 
-exports.update_profile = (req, res, next) => {
+exports.update_store = (req, res, next) => {
   const updateOps = {};
   for (const ops of req.body) {
     updateOps[ops.propName] = ops.value;
@@ -96,7 +96,7 @@ exports.update_profile = (req, res, next) => {
     .exec()
     .then(result => {
       return res.status(200).json({
-        message: "Profil Güncellendi",
+        message: "Mağaza Güncellendi",
         result
       });
     })
@@ -104,7 +104,7 @@ exports.update_profile = (req, res, next) => {
       console.log(err);
       return res.status(500).json({
         err:
-          "Profil Güncelleme Esnasında Bir Hata İle Karşılaştık, Admin İle İletişime Geç"
+          "Mağaza Güncelleme Esnasında Bir Hata İle Karşılaştık, Admin İle İletişime Geç"
       });
     });
 };
@@ -129,7 +129,7 @@ exports.update_profile = (req, res, next) => {
 ]
 */
 
-exports.delete_profile = async (req, res, next) => {
+exports.delete_store = async (req, res, next) => {
   try {
     let removed_profile = await mongoose
       .model("Profile")

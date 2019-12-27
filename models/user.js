@@ -20,6 +20,11 @@ const user = mongoose.model("User", new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Profile",
     required: true
+  },
+  profile_type: {
+    type: String,
+    enum: ["normal", "magaza", "admin"],
+    default: "normal"
   }
 }));
 

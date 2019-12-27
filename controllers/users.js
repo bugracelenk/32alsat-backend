@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const speakeasy = require("speakeasy");
+
+
 
 exports.user_login = (req, res, next) => {
   mongoose
@@ -19,21 +22,13 @@ exports.user_login = (req, res, next) => {
             message: "Giriş Başarısız"
           });
         if (result) {
-          const token = jwt.sign(
-            {
-              email: user.email,
-              _id: user._id,
-              profile_id: user.profile_id
-            },
-            "secret",
-            {
-              expiresIn: '1h'
-            }
-          );
-
           return res.status(200).json({
-            message: "Giriş Başarılı",
-            token
+            token: speakeasy.totp({
+              secret: "secret",
+              encoding: "base32"
+            }),
+            remaining: (60 - Math.floor((new Date().getTime() / 1000.0) % 20)),
+            _id: user._id
           })
         }
         return res.status(401).json({
@@ -48,6 +43,39 @@ exports.user_login = (req, res, next) => {
       });
     });
 };
+
+exports.user_verify = async (req, res, next) => {
+  let user = await mongoose.model("User").findOne({ _id: req.params.user_id });
+  let valid = speakeasy.totp.verify({ 
+    secret: "secret",
+    encoding: "base32",
+    token: req.body.token,
+    window: 5
+  });
+
+  if(valid) {
+    const token = jwt.sign(
+      {
+        email: user.email,
+        _id: user._id,
+        profile_id: user.profile_id,
+      },
+      "secret",
+      {
+        expiresIn: '1h'
+      }
+    );  
+
+    return res.status(200).json({
+      message: "Giriş Başarılı",
+      token
+    })
+  }else {
+    return res.status(409).json({
+      err: "Doğrulama Hatası"
+    })
+  }
+}
 
 exports.user_register = async (req, res, next) => {
 
@@ -91,3 +119,11 @@ exports.user_register = async (req, res, next) => {
     return res.status(500).json({ err });
   })
 }
+
+
+
+/* 
+
+
+
+*/

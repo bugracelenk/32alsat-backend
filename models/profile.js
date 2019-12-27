@@ -13,22 +13,22 @@ const profile = mongoose.model("Profile", new mongoose.Schema({
     type: Date,
     default: Date.now()
   },
-  profile_type: {
-    type: String,
-    enum: ["magaza", "normal", "admin"],
-    default: "normal"
-  },
   ilanlar: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Ilan",
-    required: true
+    default: []
+  }],
+  urunler: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Urun",
+    default: []
   }],
   followers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Profile",
     default: []
   }],
-  followed: [{
+  following: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Profile",
     default: []
@@ -65,6 +65,9 @@ const profile = mongoose.model("Profile", new mongoose.Schema({
   isHidden: {
     type: Boolean,
     default: false
+  },
+  store_name: {
+    type: String
   }
 }));
 
