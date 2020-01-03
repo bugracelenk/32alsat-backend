@@ -18,14 +18,14 @@ exports.get_profile = (req, res, next) => {
           return res.status(200).json({
             name: profile.name,
             surname: profile.surname,
-            profile_type: profile.profile_type,
+            profile_type: req.userData.profile_type,
             ilanlar: profile.ilanlar,
             followers: profile.followers,
             followed: profile.followed,
             email: profile.email
           });
         } else {
-          return res.status(200).json(profile);
+          return res.status(200).json({ ...profile, profile_type: req.userData.profile_type });
         }
       } else {
         return res.status(404).json({
@@ -53,6 +53,7 @@ exports.get_profile_by_id = (req, res, next) => {
     .populate("user_id", "-__v, -password -profile_id")
     .populate("followers", "-__v -user_id")
     .populate("followed", "-__v -user_id")
+    .populate("profile_type", "-user_id -profile_id")
     .populate("engellenen_kullanicilar", "-__v -user_id")
     .exec()
     .then(profile => {
@@ -61,11 +62,11 @@ exports.get_profile_by_id = (req, res, next) => {
           return res.status(200).json({
             name: profile.name,
             surname: profile.surname,
-            profile_type: profile.profile_type,
             ilanlar: profile.ilanlar,
             followers: profile.followers,
             followed: profile.followed,
-            email: profile.email
+            email: profile.email,
+            profile_type: profile.profile_type.yetki
           });
         } else {
           return res.status(200).json(profile);

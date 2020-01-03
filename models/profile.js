@@ -33,9 +33,14 @@ const profile = mongoose.model("Profile", new mongoose.Schema({
     ref: "Profile",
     default: []
   }],
-  begendigi_ilanlar: [{
+  fav_ilanlar: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Ilan",
+    default: []
+  }],
+  fav_products: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
     default: []
   }],
   adres: {
@@ -68,6 +73,12 @@ const profile = mongoose.model("Profile", new mongoose.Schema({
   },
   store_name: {
     type: String
+  },
+  profile_type: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Yetki",
+    required: true,
+    unique: true
   }
 }));
 

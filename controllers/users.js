@@ -45,7 +45,7 @@ exports.user_login = (req, res, next) => {
 };
 
 exports.user_verify = async (req, res, next) => {
-  let user = await mongoose.model("User").findOne({ _id: req.params.user_id });
+  let user = await mongoose.model("User").findOne({ _id: req.params.user_id }).populate("profile_type");
   let valid = speakeasy.totp.verify({ 
     secret: "secret",
     encoding: "base32",
@@ -59,6 +59,7 @@ exports.user_verify = async (req, res, next) => {
         email: user.email,
         _id: user._id,
         profile_id: user.profile_id,
+        profile_type: user.profile_type.yetki
       },
       "secret",
       {
@@ -81,17 +82,20 @@ exports.user_register = async (req, res, next) => {
 
   let isTaken = await mongoose.model("User").findOne({ email: req.body.email });
   if(isTaken) return res.status(409).json({ message: "Bu eamil adresi kayıtlı."});
+  let userId = new mongoose.Types.ObjectId();
+  let profileId = new mongoose.Types.ObjectId();
+  let _profile_type = await mongoose.model("Yetki").create({ yetki: "normal", user_id: userId, profile_id: profileId });
 
   bcrypt.hash(req.body.password, 10, (err, hash) => {
     if(err) return res.status(500).json({ err });
     else {
-      let userId = new mongoose.Types.ObjectId();
-      let profileId = new mongoose.Types.ObjectId();
+      
       const user = {
         _id: userId,
         email: req.body.email,
         password: hash,
-        user_name: req.body.email,
+        user_name: req.body.user_name,
+        profile_type: _profile_type._id,
         profile_id: profileId
       };
 
@@ -100,7 +104,7 @@ exports.user_register = async (req, res, next) => {
         name: req.body.name,
         surname: req.body.surname,
         birth_date: req.body.birth_date,
-        profile_type: req.body.profile_type,
+        profile_type: _profile_type._id,
         adres: req.body.adres,
         telefon_no: req.body.telefon_no,
         user_id: userId

@@ -5,10 +5,15 @@ const bodyParser = require("body-parser");
 
 require("./models/profile");
 require("./models/user");
+require("./models/yetki");
+require("./models/tag");
+require("./models/ilan");
+require("./models/category");
 
 const userRoute = require("./routes/users");
 const profileRoute = require("./routes/profiles");
 const storeRoute = require("./routes/stores");
+const ilanRoute = require("./routes/ilanlar");
 
 mongoose
   .connect(
@@ -38,5 +43,6 @@ app.use((req, res, next) => { //CORS İzinleri
 app.use("/api/users", userRoute);
 app.use("/api/profiles", profileRoute);
 app.use("/api/stores", storeRoute);
+app.use("/api/ilanlar", ilanRoute);
 
 module.exports = app;
