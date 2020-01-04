@@ -6,14 +6,16 @@ const bodyParser = require("body-parser");
 require("./models/profile");
 require("./models/user");
 require("./models/yetki");
-require("./models/tag");
 require("./models/ilan");
 require("./models/category");
+require("./models/product");
 
 const userRoute = require("./routes/users");
 const profileRoute = require("./routes/profiles");
 const storeRoute = require("./routes/stores");
 const ilanRoute = require("./routes/ilanlar");
+const productRoute = require("./routes/products");
+const adminRoute = require("./routes/admin");
 
 mongoose
   .connect(
@@ -44,5 +46,7 @@ app.use("/api/users", userRoute);
 app.use("/api/profiles", profileRoute);
 app.use("/api/stores", storeRoute);
 app.use("/api/ilanlar", ilanRoute);
+app.use("/api/products", productRoute);
+app.use("/api/admin", adminRoute);
 
 module.exports = app;

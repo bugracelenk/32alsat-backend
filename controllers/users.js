@@ -3,8 +3,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const speakeasy = require("speakeasy");
 
-
-
 exports.user_login = (req, res, next) => {
   mongoose
     .model("User")

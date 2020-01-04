@@ -18,7 +18,7 @@ const profile = mongoose.model("Profile", new mongoose.Schema({
     ref: "Ilan",
     default: []
   }],
-  urunler: [{
+  products: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Urun",
     default: []

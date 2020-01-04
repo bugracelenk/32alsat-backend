@@ -4,7 +4,7 @@ exports.get_store = (req, res, next) => {
   const profile_id = req.userData.profile_id;
 
   mongoose
-    .model("Store")
+    .model("Profile")
     .findOne({ _id: profile_id })
     .select("-__v -user_id -ilanlar -begendigi_ilanlar")
     .populate("user_id", "-__v, -password -profile_id")

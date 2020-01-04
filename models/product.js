@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const ilan = mongoose.model("Ilan", new mongoose.Schema({
+const product = mongoose.model("Product", new mongoose.Schema({
   title: {
     type: String,
     required: true
@@ -12,6 +12,10 @@ const ilan = mongoose.model("Ilan", new mongoose.Schema({
   desc: {
     type: String,
     default: ""
+  },
+  inventory: {
+    type: Number,
+    default: 0
   },
   like_count: {
     type: Number,
@@ -61,4 +65,4 @@ const ilan = mongoose.model("Ilan", new mongoose.Schema({
   }
 }));
 
-module.exports = ilan;
+module.exports = product;

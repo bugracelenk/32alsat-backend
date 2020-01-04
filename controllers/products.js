@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const paginate = require("../utils/paginate");
 const validation = require("../utils/validation");
 
-exports.ilan_olustur = async (req, res, next) => {
+exports.create_product = async (req, res, next) => {
   const args = req.body;
 
   let _category = await mongoose
@@ -14,7 +14,7 @@ exports.ilan_olustur = async (req, res, next) => {
       error: "Kategori getirilirken bir hata oluştu."
     });
 
-  const ilan_veri = {
+  const product_veri = {
     title: args.title,
     price: args.price,
     desc: args.desc,
@@ -23,19 +23,19 @@ exports.ilan_olustur = async (req, res, next) => {
     category: _category._id,
   };
 
-  let ilan = await mongoose.model("Ilan").create(ilan_veri);
+  let product = await mongoose.model("Product").create(product_veri);
 
-  if (ilan)
+  if (product)
     return res.status(201).json({
-      message: "İlan oluşturuldu, admin onayı bekliyor.",
+      message: "Ürün oluşturuldu, admin onayı bekliyor.",
       request: {
         type: "GET",
-        url: `http://localhost:3000/api/ilanlar/${ilan._id}`
+        url: `http://localhost:3000/api/products/${product._id}`
       }
     });
   else
     return res.status(500).json({
-      error: "İlan oluşturulurken bir hata oluştu, admin ile iletişime geç"
+      error: "Ürün oluşturulurken bir hata oluştu, admin ile iletişime geç"
     });
 };
 
@@ -45,7 +45,7 @@ args.tags.map(tag => {})
 tag = utu,
 tag = kalem
 
-ilan_veri.tags = [ObjectID, ObjectID]
+product_veri.tags = [ObjectID, ObjectID]
 
 let my_name = "bugra"
 
@@ -56,20 +56,20 @@ let my_name = "bugra"
 req.body.images = ["şlksafsşaskfaslşfkaf.com/şaskşaskfgşl", "aşslkfaşlkfasşlkf.com/asşfkasşlfkasşlfk"]
 req.body.images = []
 
-ilan_veri.images = ["şlksafsşaskfaslşfkaf.com/şaskşaskfgşl", "aşslkfaşlkfasşlkf.com/asşfkasşlfkasşlfk"]
-ilan_veri.images = []
+product_veri.images = ["şlksafsşaskfaslşfkaf.com/şaskşaskfgşl", "aşslkfaşlkfasşlkf.com/asşfkasşlfkasşlfk"]
+product_veri.images = []
 
 if(args.images.length > 0) {} else {}
 args.images.length > 0 ? {} : {}
 */
 
-exports.get_ilanlar = (req, res, next) => {
+exports.get_products = (req, res, next) => {
   let args = {
     limit: parseInt(req.params.limit),
     skip: parseInt(req.params.skip)
   };
   mongoose
-    .model("Ilan")
+    .model("Product")
     .find({ isListing: true, isApproved: true })
     .sort({ updated_at: -1 })
     .limit(paginate.setLimit(args))
@@ -79,14 +79,14 @@ exports.get_ilanlar = (req, res, next) => {
       if (result.length > 0) {
         const response = {
           count: result.length,
-          ilanlar: result.map(ilan => {
+          products: result.map(product => {
             return {
-              title: ilan.title,
-              price: ilan.price,
-              thumbnail: ilan.thumbnail,
+              title: product.title,
+              price: product.price,
+              thumbnail: product.thumbnail,
               request: {
                 type: "GET",
-                url: `http://localhost:3000/api/ilanlar/${ilan._id}`
+                url: `http://localhost:3000/api/products/${product._id}`
               }
             };
           })
@@ -95,22 +95,22 @@ exports.get_ilanlar = (req, res, next) => {
         return res.status(200).json(response);
       } else {
         return res.status(200).json({
-          message: "Listelenecek ilan yok."
+          message: "Listelenecek ürün yok."
         });
       }
     });
 };
 
-exports.get_ilan_by_id = async (req, res, next) => {
-  const ilan_id = req.params.ilan_id;
+exports.get_product_by_id = async (req, res, next) => {
+  const product_id = req.params.product_id;
 
   let result = await mongoose
-    .model("Ilan")
-    .find({ _id: ilan_id })
+    .model("Product")
+    .find({ _id: product_id })
     .populate({
       path: "listed_by",
       select:
-        "-birth_date -ilanlar -urunler -followers -following -begendigi_ilanlar -adres -engellenen_kullanicilar -telefon_no -user_id -isHidden -store_name",
+        "store_name -birth_date -products -ilanlar -followers -following -begendigi_products -adres -engellenen_kullanicilar -telefon_no -user_id -isHidden",
       populate: {
         path: "profile_type",
         select: "-profile_id -user_id"
@@ -121,12 +121,12 @@ exports.get_ilan_by_id = async (req, res, next) => {
   if (result) return res.status(200).json(result);
   else
     return res.status(400).json({
-      error: "Verilen ID için ilan bulunamadı."
+      error: "Verilen ID için ürün bulunamadı."
     });
 };
 
-exports.update_ilan = async (req, res, next) => {
-  const ilan_id = req.params.ilan_id;
+exports.update_product = async (req, res, next) => {
+  const product_id = req.params.product_id;
 
   let updateOps = {};
   for (const ops of req.body) {
@@ -135,25 +135,25 @@ exports.update_ilan = async (req, res, next) => {
 
   updateOps["updated_at"] = Date.now();
 
-  let old_ilan = await mongoose.model("Ilan").findOne({ _id: ilan_id });
+  let old_product = await mongoose.model("Product").findOne({ _id: product_id });
 
   mongoose
-    .model("Ilan")
-    .findOneAndUpdate({ _id: ilan_id }, { $set: updateOps })
+    .model("Product")
+    .findOneAndUpdate({ _id: product_id }, { $set: updateOps })
     .exec()
     .then(result => {
-      if (result !== old_ilan) {
+      if (result !== old_product) {
         return res.status(200).json({
-          message: "İlan Başarıyla Güncellendi",
+          message: "Ürün Başarıyla Güncellendi",
           request: {
             type: "GET",
-            url: `http://locahost:3000/api/ilanlar/${result._id}`
+            url: `http://locahost:3000/api/products/${result._id}`
           }
         });
       } else {
         return res.status(500).json({
           error:
-            "İlan güncellenirken bir hata oluştu, lütfen tekrar deneyiniz ve admin ile iletişime geçiniz."
+            "Ürün güncellenirken bir hata oluştu, lütfen tekrar deneyiniz ve admin ile iletişime geçiniz."
         });
       }
     })
@@ -198,134 +198,134 @@ for(ops in req.body) {
 }
 */
 
-exports.like_ilan = async (req, res, next) => {
-  const ilan_id = req.params.ilan_id;
+exports.like_product = async (req, res, next) => {
+  const product_id = req.params.product_id;
 
-  let ilan = await mongoose.model("Ilan").findOne({ _id: ilan_id });
+  let product = await mongoose.model("Product").findOne({ _id: product_id });
 
-  ilan.like_count += 1;
+  product.like_count += 1;
 
-  let result = await ilan.save();
+  let result = await product.save();
 
   if (result) {
     return res.status(200).json({
-      message: "İlan Beğenildi",
+      message: "Ürün Beğenildi",
       request: {
         type: "GET",
-        url: `http://locahost:3000/api/ilanlar/${result._id}`
+        url: `http://locahost:3000/api/products/${result._id}`
       }
     });
   } else {
     return res.status(500).json({
       error:
-        "İlan beğenilirken bir hata ile karşılaşıldı. lütfen tekrar deneyiniz ve admin ile iletişime geçiniz."
+        "Ürün beğenilirken bir hata ile karşılaşıldı. lütfen tekrar deneyiniz ve admin ile iletişime geçiniz."
     });
   }
 };
 
-exports.dislike_ilan = async (req, res, next) => {
-  const ilan_id = req.params.ilan_id;
+exports.dislike_product = async (req, res, next) => {
+  const product_id = req.params.product_id;
 
-  let ilan = await mongoose.model("Ilan").findOne({ _id: ilan_id });
+  let product = await mongoose.model("Product").findOne({ _id: product_id });
 
-  ilan.like_count -= 1;
+  product.like_count -= 1;
 
-  let result = await ilan.save();
+  let result = await product.save();
 
   if (result) {
     return res.status(200).json({
-      message: "İlan Beğenilerden çıkarıldı",
+      message: "Ürün Beğenilerden çıkarıldı",
       request: {
         type: "GET",
-        url: `http://locahost:3000/api/ilanlar/${result._id}`
+        url: `http://locahost:3000/api/products/${result._id}`
       }
     });
   } else {
     return res.status(500).json({
       error:
-        "İlan beğenilerden çıkarılırken bir hata ile karşılaşıldı. lütfen tekrar deneyiniz ve admin ile iletişime geçiniz."
+        "Ürün beğenilerden çıkarılırken bir hata ile karşılaşıldı. lütfen tekrar deneyiniz ve admin ile iletişime geçiniz."
     });
   }
 };
 
-exports.ilan_favla = async (req, res, next) => {
+exports.fav_product = async (req, res, next) => {
   /*
-  ilanın fav sayısını bir artır
-  ilanın favlayan kullanıcılar kısmına profil_id'sini ekle
-  profilde favlanan ilanlar kısmına bu ilanı ekle
+  productın fav sayısını bir artır
+  productın favlayan kullanıcılar kısmına profil_id'sini ekle
+  profilde favlanan products kısmına bu productı ekle
   */
 
-  const ilan_id = req.params.ilan_id;
+  const product_id = req.params.product_id;
 
-  let ilan = await mongoose.model("Ilan").findOne({ _id: ilan_id });
+  let product = await mongoose.model("Product").findOne({ _id: product_id });
   let profile = await mongoose
     .model("Profile")
     .findOne({ _id: req.userData.profile_id });
 
-  ilan.fav_count += 1;
-  ilan.faved_users.push(req.userData.profile_id);
-  profile.fav_ilanlar.push(ilan_id);
+  product.fav_count += 1;
+  product.faved_users.push(req.userData.profile_id);
+  profile.fav_products.push(product_id);
 
-  let ilan_res = await ilan.save();
+  let product_res = await product.save();
   let profile_res = await profile.save();
 
-  if (ilan_res && profile_res) {
+  if (product_res && profile_res) {
     return res.status(200).json({
-      message: "İlan favorilere eklendi",
+      message: "Ürün favorilere eklendi",
       request: {
         path: "GET",
         url: `http://localhost:3000/api/profile/favs`
       }
     });
-  } else if (!ilan_res) {
+  } else if (!product_res) {
     return res.status(500).json({
       error:
-        "İlan favorilere eklenirken bir hata oluştu, tekrar deneyiniz ve admin ile iletişime geçiniz."
+        "Ürün favorilere eklenirken bir hata oluştu, tekrar deneyiniz ve admin ile iletişime geçiniz."
     });
   } else if (!profile_res) {
     return res.status(500).json({
       error:
-        "İlan profile eklenirken bir hata oluştu, tekrar deneyiniz ve admin ile iletişime geçiniz."
+        "Ürün profile eklenirken bir hata oluştu, tekrar deneyiniz ve admin ile iletişime geçiniz."
     });
   }
 };
 
-exports.unfav_ilan = async (req, res, next) => {
-  const ilan_id = req.params.ilan_id;
+exports.unfav_product = async (req, res, next) => {
+  const product_id = req.params.product_id;
 
-  let ilan = await mongoose.model("Ilan").findOne({ _id: ilan_id });
+  let product = await mongoose.model("Product").findOne({ _id: product_id });
   let profile = await mongoose
     .model("Profile")
     .findOne({ _id: req.userData.profile_id });
 
-  ilan.fav_count -= 1;
-  ilan.faved_users.filter(faved_user => {
+  product.fav_count -= 1;
+  product.faved_users.filter(faved_user => {
     return faved_user !== req.userData.profile_id;
   });
-  profile.fav_ilanlar.filter(fav_ilan => {
-    return fav_ilan !== ilan_id;
+  profile.fav_products.filter(fav_product => {
+    return fav_product !== product_id;
   });
 
-  let ilan_res = await ilan.save();
+  let product_res = await product.save();
   let profile_res = await profile.save();
 
-  if (ilan_res && profile_res) {
+  if (product_res && profile_res) {
     return res.status(200).json({
-      message: "İlan favorilerden çıkarıldı.",
+      message: "Ürün favorilerden çıkarıldı.",
       request: {
         path: "GET",
         url: `http://localhost:3000/api/profile/favs`
       }
     });
-  } else if (!ilan_res) {
+  } else if (!product_res) {
     return res.status(500).json({
       error:
-        "İlan favorilerden çıkarılırken bir hata oluştu, tekrar deneyiniz ve admin ile iletişime geçiniz."
+        "Ürün favorilerden çıkarılırken bir hata oluştu, tekrar deneyiniz ve admin ile iletişime geçiniz."
     });
   } else if (!profile_res) {
     return res.status(500).json({
       error:
-        "İlan profilden çıkarılırken bir hata oluştu, tekrar deneyiniz ve admin ile iletişime geçiniz."
+        "Ürün profilden çıkarılırken bir hata oluştu, tekrar deneyiniz ve admin ile iletişime geçiniz."
     });
   }
 };
@@ -334,33 +334,33 @@ exports.unfav_ilan = async (req, res, next) => {
   arr.filter(number => number !== 4);
   arr = [1,2,3,5];
 */
-exports.delete_ilan = (req, res, next) => {
-  let ilan_id = req.params.ilan_id;
+exports.delete_product = (req, res, next) => {
+  let product_id = req.params.product_id;
 
   mongoose
-    .model("Ilan")
-    .findByIdAndDelete(ilan_id)
+    .model("Product")
+    .findByIdAndDelete(product_id)
     .exec()
     .then(result => {
       if (!result)
         return res.status(500).json({
-          error: "İlan silinirken bir hata ile karşılaşıldı."
+          error: "Ürün silinirken bir hata ile karşılaşıldı."
         });
 
       return res.status(200).json({
-        messsage: "İlan başarılı bir şekilde silindi.",
+        messsage: "Ürün başarılı bir şekilde silindi.",
         result
       });
     });
 };
 
-exports.get_my_ilanlar = (req, res, next) => {
+exports.get_my_products = (req, res, next) => {
   let args = {
     limit: parseInt(req.params.limit),
     skip: parseInt(req.params.skip)
   };
   mongoose
-    .model("Ilan")
+    .model("Product")
     .find({ listed_by: req.userData.profile_id })
     .sort({ updated_at: -1 })
     .limit(paginate.setLimit(args))
@@ -370,14 +370,14 @@ exports.get_my_ilanlar = (req, res, next) => {
       if (result.length > 0) {
         const response = {
           count: result.length,
-          ilanlar: result.map(ilan => {
+          products: result.map(product => {
             return {
-              title: ilan.title,
-              price: ilan.price,
-              thumbnail: ilan.thumbnail,
+              title: product.title,
+              price: product.price,
+              thumbnail: product.thumbnail,
               request: {
                 type: "GET",
-                url: `http://localhost:3000/api/ilanlar/${ilan._id}`
+                url: `http://localhost:3000/api/products/${product._id}`
               }
             };
           })
@@ -386,7 +386,7 @@ exports.get_my_ilanlar = (req, res, next) => {
         return res.status(200).json(response);
       } else {
         return res.status(200).json({
-          message: "Listelenecek ilan yok."
+          message: "Listelenecek ürün yok."
         });
       }
     })
@@ -401,6 +401,13 @@ exports.get_my_ilanlar = (req, res, next) => {
 exports.search = async (req, res, next) => {
   let search_string = req.body.searc_string;
 
+  let products = await mongoose
+    .model("Product")
+    .find({ title: { $regex: search_string, $options: "i" } })
+    .sort({ updated_at: -1 })
+    .limit(paginate.setLimit(args))
+    .skip(paginate.setSkip(args))
+    .exec();
   let ilanlar = await mongoose
     .model("Ilan")
     .find({ title: { $regex: search_string, $options: "i" } })
@@ -408,32 +415,25 @@ exports.search = async (req, res, next) => {
     .limit(paginate.setLimit(args))
     .skip(paginate.setSkip(args))
     .exec();
-  let urunler = await mongoose
-    .model("Product")
-    .find({ title: { $regex: search_string, $options: "i" } })
-    .sort({ updated_at: -1 })
-    .limit(paginate.setLimit(args))
-    .skip(paginate.setSkip(args))
-    .exec();
+
+  if (!products)
+    return res.status(500).json({
+      error: "Ürünler getirilemedi."
+    });
 
   if (!ilanlar)
     return res.status(500).json({
       error: "İlanlar getirilemedi."
     });
 
-  if (!urunler)
-    return res.status(500).json({
-      error: "Urunler getirilemedi."
-    });
-
   let results = [];
 
-  if (ilanlar.length === 0 && urunler.length > 0) {
-    results = [...results, urunler];
-  } else if (ilanlar.length > 0 && urunler.length === 0) {
+  if (products.length === 0 && ilanlar.length > 0) {
     results = [...results, ilanlar];
-  } else if (ilanlar.length > 0 && urunler.length > 0) {
-    results = [...results, ilanlar, urunler];
+  } else if (products.length > 0 && ilanlar.length === 0) {
+    results = [...results, products];
+  } else if (products.length > 0 && ilanlar.length > 0) {
+    results = [...results, products, ilanlar];
   }
 
   return res.status(200).json({
@@ -455,6 +455,14 @@ exports.search_category = async (req, res, next) => {
 
     await validation.isValid(req.body.category, "category_id");
 
+    let products = await mongoose
+      .model("Product")
+      .find({ isListing: true, isApproved: true, category: req.body.category })
+      .sort({ updated_at: -1 })
+      .limit(paginate.setLimit(args))
+      .skip(paginate.setSkip(args))
+      .exec();
+
     let ilanlar = await mongoose
       .model("Ilan")
       .find({ isListing: true, isApproved: true, category: req.body.category })
@@ -463,32 +471,24 @@ exports.search_category = async (req, res, next) => {
       .skip(paginate.setSkip(args))
       .exec();
 
-    let urunler = await mongoose
-      .model("Ilan")
-      .find({ isListing: true, isApproved: true, category: req.body.category })
-      .sort({ updated_at: -1 })
-      .limit(paginate.setLimit(args))
-      .skip(paginate.setSkip(args))
-      .exec();
+    if (!products)
+      return res.status(500).json({
+        error: "Ürünler getirilemedi."
+      });
 
     if (!ilanlar)
       return res.status(500).json({
         error: "İlanlar getirilemedi."
       });
 
-    if (!urunler)
-      return res.status(500).json({
-        error: "Urunler getirilemedi."
-      });
-
     let results = [];
 
-    if (ilanlar.length === 0 && urunler.length > 0) {
-      results = [...results, urunler];
-    } else if (ilanlar.length > 0 && urunler.length === 0) {
+    if (products.length === 0 && ilanlar.length > 0) {
       results = [...results, ilanlar];
-    } else if (ilanlar.length > 0 && urunler.length > 0) {
-      results = [...results, ilanlar, urunler];
+    } else if (products.length > 0 && ilanlar.length === 0) {
+      results = [...results, products];
+    } else if (products.length > 0 && ilanlar.length > 0) {
+      results = [...results, products, ilanlar];
     }
   } catch (err) {}
 };
@@ -512,4 +512,4 @@ tags,category,text,fiyat aralığı
 //exports.search
 //exports.unfav
 //exports.delete
-//exports.ilanlarımı_getir
+//exports.productsımı_getir
