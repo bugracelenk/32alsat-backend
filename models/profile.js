@@ -51,6 +51,18 @@ const profile = mongoose.model("Profile", new mongoose.Schema({
     acik_adres: {
       type: String,
       required: true
+    },
+    bina_no: {
+      type: Number,
+      required: true
+    },
+    kat_daire: {
+      type: String,
+      required: true
+    },
+    posta_kodu: {
+      type: String,
+      required: true
     }
   },
   engellenen_kullanicilar: [{
@@ -69,7 +81,7 @@ const profile = mongoose.model("Profile", new mongoose.Schema({
   },
   isHidden: {
     type: Boolean,
-    default: false
+    default: true
   },
   store_name: {
     type: String
