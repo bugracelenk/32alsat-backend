@@ -534,16 +534,12 @@ exports.search_by_price = async (req, res, next) => {
 
   let results = [];
 
-  if (ilanlar.length === 0 && urunler.length > 0) {
-    results = [...results, urunler];
-  } else if (ilanlar.length > 0 && urunler.length === 0) {
-    results = [...results, ilanlar];
-  } else if (ilanlar.length > 0 && urunler.length > 0) {
-    results = [...results, ilanlar, urunler];
-  }
+  
 
   return res.status(200).json({
-    results
+    results: {
+      ilanlar,
+      urunler
   });
 }
 
