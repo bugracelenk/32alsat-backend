@@ -96,7 +96,7 @@ exports.user_register = async (req, res, next) => {
   if(isTaken) return res.status(409).json({ message: "Bu eamil adresi kayıtlı."});
   let userId = new mongoose.Types.ObjectId();
   let profileId = new mongoose.Types.ObjectId();
-  let _profile_type = await mongoose.model("Yetki").create({ yetki: "normal", user_id: userId, profile_id: profileId });
+  let _profile_type = await mongoose.model("Yetki").create({ yetki: req.body.profile_type, user_id: userId, profile_id: profileId });
 
   bcrypt.hash(req.body.password, 10, (err, hash) => {
     if(err) return res.status(500).json({ err });
