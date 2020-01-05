@@ -490,8 +490,62 @@ exports.search_category = async (req, res, next) => {
     } else if (ilanlar.length > 0 && urunler.length > 0) {
       results = [...results, ilanlar, urunler];
     }
+
+    return res.status(200).json({
+      results
+    });
   } catch (err) {}
 };
+
+exports.search_by_price = async (req, res, next) => {
+  let args = {
+    limit: parseInt(req.params.limit),
+    skip: parseInt(req.params.skip)
+  };
+
+  //$gt -> greater then
+  //$lt -> lower then
+
+  let ilanlar = await mongoose
+    .model("Ilan")
+    .find({ isListing: true, isApproved: true, price: { $gt: req.body.min_price , $lt: req.body.max_price } })
+    .sort({ updated_at: -1 })
+    .limit(paginate.setLimit(args))
+    .skip(paginate.setSkip(args))
+    .exec();
+
+  let urunler = await mongoose
+    .model("Ilan")
+    .find({ isListing: true, isApproved: true, price: { $gt: req.body.min_price , $lt: req.body.max_price } })
+    .sort({ updated_at: -1 })
+    .limit(paginate.setLimit(args))
+    .skip(paginate.setSkip(args))
+    .exec();
+
+  if (!ilanlar)
+    return res.status(500).json({
+      error: "İlanlar getirilemedi."
+    });
+
+  if (!urunler)
+    return res.status(500).json({
+      error: "Urunler getirilemedi."
+    });
+
+  let results = [];
+
+  if (ilanlar.length === 0 && urunler.length > 0) {
+    results = [...results, urunler];
+  } else if (ilanlar.length > 0 && urunler.length === 0) {
+    results = [...results, ilanlar];
+  } else if (ilanlar.length > 0 && urunler.length > 0) {
+    results = [...results, ilanlar, urunler];
+  }
+
+  return res.status(200).json({
+    results
+  });
+}
 
 /*
   req.body.categories = ["asdasda", "asdasd"],
