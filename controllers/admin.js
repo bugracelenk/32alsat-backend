@@ -64,11 +64,6 @@ exports.approve_ilan = async (req, res, next) => {
 
     let _ilan = await ilan.save();
 
-    if (_ilan === ilan || !_ilan)
-      return res.status(500).json({
-        error: "İlan onaylanırken bir hata ile karşılaşıldı."
-      });
-
     return res.status(200).json({
       message: "İlan başarılı bir şekilde onaylandı.",
       request: {
