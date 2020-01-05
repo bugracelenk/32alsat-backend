@@ -10,6 +10,7 @@ router.get('/:limit/:skip', IlanControllers.get_ilanlar);
 router.get('/:ilan_id', IlanControllers.get_ilan_by_id);
 router.get('/search', IlanControllers.search);
 router.get('/search-category', IlanControllers.search_category);
+router.post('/search-price/:limit/:skip', IlanControllers.search_by_price);
 router.patch('/:ilan_id', checkAuth, isNormalUser, IlanControllers.update_ilan);
 router.patch('/like/:ilan_id', checkAuth, isNormalUser, IlanControllers.like_ilan);
 router.patch('/fav/:ilan_id', checkAuth, isNormalUser, IlanControllers.ilan_favla);
