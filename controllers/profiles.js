@@ -14,19 +14,7 @@ exports.get_profile = (req, res, next) => {
     .exec()
     .then(profile => {
       if (profile) {
-        if (profile.isHidden) {
-          return res.status(200).json({
-            name: profile.name,
-            surname: profile.surname,
-            profile_type: req.userData.profile_type,
-            ilanlar: profile.ilanlar,
-            followers: profile.followers,
-            followed: profile.followed,
-            email: profile.email
-          });
-        } else {
-          return res.status(200).json({ ...profile, profile_type: req.userData.profile_type });
-        }
+        return res.status(200).json({ ...profile, profile_type: req.userData.profile_type });
       } else {
         return res.status(404).json({
           err: "Profil bulunamadı."

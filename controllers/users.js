@@ -2,42 +2,55 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const speakeasy = require("speakeasy");
+const client = require("twilio")("AC795bfaf4c72536af8163ebbbf1d6cfc0", "be423a1e4ef5a4d346cc06679778082d")
 
 exports.user_login = (req, res, next) => {
   mongoose
     .model("User")
     .findOne({ email: req.body.email })
     .exec()
-    .then(user => {
+    .then(async user => {
       if (!user)
         return res.status(401).json({
-          message: "Giriş Başarısız"
+          error: "Giriş Başarısız"
         });
+        
 
-      bcrypt.compare(req.body.password, user.password, (err, result) => {
+      let profile = await mongoose.model("Profile").findOne({ _id: user.profile_id });
+
+      bcrypt.compare(req.body.password, user.password, async (err, result) => {
         if (err)
           return res.status(401).json({
-            message: "Giriş Başarısız"
+            error: "Giriş Başarısız"
           });
         if (result) {
+          console.log(`+${profile.telefon_no}`)
+          let token = speakeasy.totp({
+            secret: "secret",
+            encoding: "base32"
+          });
+
+          let time = (60 - Math.floor((new Date().getTime() / 1000.0) % 20));
+          await client.messages.create({
+            from: "+17855464033",
+            to: `+${profile.telefon_no}`,
+            body: `İki faktörlü doğrulama için kodunuz: ${token} Kalan süre: ${time}`
+          })
+
           return res.status(200).json({
-            token: speakeasy.totp({
-              secret: "secret",
-              encoding: "base32"
-            }),
-            remaining: (60 - Math.floor((new Date().getTime() / 1000.0) % 20)),
             _id: user._id
           })
+          
         }
         return res.status(401).json({
-          message: "Giriş Başarısız"
+          error: "Giriş Başarısız"
         });
       });
     }).catch(err => {
       console.log(err);
       return res.status(500).json({
         err,
-        message: "Admin ile iletişime geç"
+        error: "Admin ile iletişime geç"
       });
     });
 };
@@ -67,11 +80,12 @@ exports.user_verify = async (req, res, next) => {
 
     return res.status(200).json({
       message: "Giriş Başarılı",
-      token
+      token,
+      user_type: user.profile_type.yetki
     })
   }else {
     return res.status(409).json({
-      err: "Doğrulama Hatası"
+      error: "Doğrulama Hatası"
     })
   }
 }

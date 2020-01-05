@@ -6,4 +6,4 @@ const isValidID = (_id, field) => {
   true;
 };
 
-module.exports = { isValid };
+module.exports = { isValidID };

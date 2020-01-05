@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 const bodyParser = require("body-parser");
+const morgan = require("morgan");
 
 require("./models/profile");
 require("./models/user");
@@ -28,6 +29,8 @@ mongoose.Promise = global.Promise;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.use(morgan("dev"));
 
 app.use((req, res, next) => { //CORS İzinleri
   res.header("Access-Control-Allow-Origin", "*");

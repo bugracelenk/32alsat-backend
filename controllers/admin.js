@@ -28,7 +28,7 @@ exports.delete_category = async (req, res, next) => {
   try {
     let category_id = req.body.category_id;
 
-    await validation.isValid(category_id, "category_id");
+    await validation.isValidID(category_id, "category_id");
 
     let deleted_category = await mongoose
       .model("Category")
@@ -55,7 +55,7 @@ exports.approve_ilan = async (req, res, next) => {
   try {
     let ilan_id = req.body.ilan_id;
 
-    await validation.isValid(ilan_id, "ilan_id");
+    await validation.isValidID(ilan_id, "ilan_id");
 
     let ilan = await mongoose.model("Ilan").findById(ilan_id);
 
@@ -88,7 +88,7 @@ exports.disapprove_ilan = async (req, res, next) => {
   try {
     let ilan_id = req.body.ilan_id;
 
-    await validation.isValid(ilan_id, "ilan_id");
+    await validation.isValidID(ilan_id, "ilan_id");
 
     let ilan = await mongoose.model("Ilan").findById(ilan_id);
 
@@ -121,7 +121,7 @@ exports.approve_product = async (req, res, next) => {
   try {
     let product_id = req.body.product_id;
 
-    await validation.isValid(product_id, "product_id");
+    await validation.isValidID(product_id, "product_id");
 
     let product = await mongoose.model("Product").findById(product_id);
 
@@ -154,7 +154,7 @@ exports.disapprove_product = async (req, res, next) => {
   try {
     let product_id = req.body.product_id;
 
-    await validation.isValid(product_id, "product_id");
+    await validation.isValidID(product_id, "product_id");
 
     let product = await mongoose.model("Product").findById(product_id);
 
