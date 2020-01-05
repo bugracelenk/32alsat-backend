@@ -540,6 +540,7 @@ exports.search_by_price = async (req, res, next) => {
     results: {
       ilanlar,
       urunler
+    }
   });
 }
 
