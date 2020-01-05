@@ -20,7 +20,7 @@ const adminRoute = require("./routes/admin");
 
 mongoose
   .connect(
-    "mongodb://localhost/32alsat",
+    "mongodb+srv://bugracelenk:1234qwerasdf@32alsat-backend-zacht.mongodb.net/test?retryWrites=true&w=majority",
     { useNewUrlParser: true }
   )//bağlantı yapıyo
   .then(() => console.log("Connected to MongoDB"))//bağlandığını bildiriyo
