@@ -399,21 +399,17 @@ exports.get_my_products = (req, res, next) => {
 };
 
 exports.search = async (req, res, next) => {
-  let search_string = req.body.searc_string;
+  let search_string = req.body.search_string;
 
   let products = await mongoose
     .model("Product")
-    .find({ title: { $regex: search_string, $options: "i" } })
+    .find({ title: /`${search_string}`/i, })
     .sort({ updated_at: -1 })
-    .limit(paginate.setLimit(args))
-    .skip(paginate.setSkip(args))
     .exec();
   let ilanlar = await mongoose
     .model("Ilan")
-    .find({ title: { $regex: search_string, $options: "i" } })
+    .find({ title: /`${search_string}`/i, })
     .sort({ updated_at: -1 })
-    .limit(paginate.setLimit(args))
-    .skip(paginate.setSkip(args))
     .exec();
 
   if (!products)

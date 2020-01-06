@@ -408,12 +408,12 @@ exports.search = async (req, res, next) => {
 
   let ilanlar = await mongoose
     .model("Ilan")
-    .find({ title: { $regex: search_string, $options: "i" } })
+    .find({ title: /`${search_string}`/i })
     .sort({ updated_at: -1 })
     .exec();
   let urunler = await mongoose
     .model("Product")
-    .find({ title: { $regex: search_string, $options: "i" } })
+    .find({ title: /`${search_string}`/i })
     .sort({ updated_at: -1 })
     .exec();
 
