@@ -58,6 +58,10 @@ const ilan = mongoose.model("Ilan", new mongoose.Schema({
   },
   thumbnail: {
     type: String,
+  },
+  _type: {
+    type: String,
+    default: "ilan"
   }
 }));
 

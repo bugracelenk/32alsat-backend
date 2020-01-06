@@ -62,6 +62,10 @@ const product = mongoose.model("Product", new mongoose.Schema({
   },
   thumbnail: {
     type: String,
+  },
+  _type: {
+    type: String,
+    default: "product"
   }
 }));
 

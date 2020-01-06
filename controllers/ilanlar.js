@@ -7,7 +7,7 @@ exports.ilan_olustur = async (req, res, next) => {
 
   let _category = await mongoose
     .model("Category")
-    .create({ category_name: args.category });
+    .findOne({ category_name: args.category });
 
   if (!_category)
     return res.status(500).json({
@@ -20,7 +20,7 @@ exports.ilan_olustur = async (req, res, next) => {
     desc: args.desc,
     images: args.images.length > 0 ? args.images : [],
     listed_by: req.userData.profile_id,
-    category: _category._id,
+    category: _category._id
   };
 
   let ilan = await mongoose.model("Ilan").create(ilan_veri);
@@ -63,11 +63,15 @@ if(args.images.length > 0) {} else {}
 args.images.length > 0 ? {} : {}
 */
 
-exports.get_ilanlar = (req, res, next) => {
+exports.get_ilanlar = async (req, res, next) => {
   let args = {
     limit: parseInt(req.params.limit),
     skip: parseInt(req.params.skip)
   };
+
+  let _ilanlar = await mongoose.model("Ilan").find({ isApproved: true, isListing: true});
+  let total_count = _ilanlar.length;
+
   mongoose
     .model("Ilan")
     .find({ isListing: true, isApproved: true })
@@ -78,6 +82,7 @@ exports.get_ilanlar = (req, res, next) => {
     .then(result => {
       if (result.length > 0) {
         const response = {
+          total_count,
           count: result.length,
           ilanlar: result.map(ilan => {
             return {
@@ -116,7 +121,7 @@ exports.get_ilan_by_id = async (req, res, next) => {
         select: "-profile_id -user_id"
       }
     })
-    .populate("category", "category_name")
+    .populate("category", "category_name");
 
   if (result) return res.status(200).json(result);
   else
@@ -399,21 +404,17 @@ exports.get_my_ilanlar = (req, res, next) => {
 };
 
 exports.search = async (req, res, next) => {
-  let search_string = req.body.searc_string;
+  let search_string = req.body.search_string;
 
   let ilanlar = await mongoose
     .model("Ilan")
     .find({ title: { $regex: search_string, $options: "i" } })
     .sort({ updated_at: -1 })
-    .limit(paginate.setLimit(args))
-    .skip(paginate.setSkip(args))
     .exec();
   let urunler = await mongoose
     .model("Product")
     .find({ title: { $regex: search_string, $options: "i" } })
     .sort({ updated_at: -1 })
-    .limit(paginate.setLimit(args))
-    .skip(paginate.setSkip(args))
     .exec();
 
   if (!ilanlar)
@@ -426,27 +427,16 @@ exports.search = async (req, res, next) => {
       error: "Urunler getirilemedi."
     });
 
-  let results = [];
-
-  if (ilanlar.length === 0 && urunler.length > 0) {
-    results = [...results, urunler];
-  } else if (ilanlar.length > 0 && urunler.length === 0) {
-    results = [...results, ilanlar];
-  } else if (ilanlar.length > 0 && urunler.length > 0) {
-    results = [...results, ilanlar, urunler];
-  }
-
   return res.status(200).json({
-    results
+    results: {
+      ilanlar,
+      urunler
+    }
   });
 };
 
 exports.search_category = async (req, res, next) => {
   try {
-    let args = {
-      limit: parseInt(req.params.limit),
-      skip: parseInt(req.params.skip)
-    };
 
     if (!req.body.category || req.body.category === "")
       return res.status(405).json({
@@ -459,16 +449,12 @@ exports.search_category = async (req, res, next) => {
       .model("Ilan")
       .find({ isListing: true, isApproved: true, category: req.body.category })
       .sort({ updated_at: -1 })
-      .limit(paginate.setLimit(args))
-      .skip(paginate.setSkip(args))
       .exec();
 
     let urunler = await mongoose
-      .model("Ilan")
+      .model("Product")
       .find({ isListing: true, isApproved: true, category: req.body.category })
       .sort({ updated_at: -1 })
-      .limit(paginate.setLimit(args))
-      .skip(paginate.setSkip(args))
       .exec();
 
     if (!ilanlar)
@@ -481,18 +467,11 @@ exports.search_category = async (req, res, next) => {
         error: "Urunler getirilemedi."
       });
 
-    let results = [];
-
-    if (ilanlar.length === 0 && urunler.length > 0) {
-      results = [...results, urunler];
-    } else if (ilanlar.length > 0 && urunler.length === 0) {
-      results = [...results, ilanlar];
-    } else if (ilanlar.length > 0 && urunler.length > 0) {
-      results = [...results, ilanlar, urunler];
-    }
-
     return res.status(200).json({
-      results
+      results: {
+        ilanlar,
+        urunler
+      }
     });
   } catch (err) {}
 };
@@ -508,18 +487,22 @@ exports.search_by_price = async (req, res, next) => {
 
   let ilanlar = await mongoose
     .model("Ilan")
-    .find({ isListing: true, isApproved: true, price: { $gt: req.body.min_price , $lt: req.body.max_price } })
+    .find({
+      isListing: true,
+      isApproved: true,
+      price: { $gt: req.body.min_price, $lt: req.body.max_price }
+    })
     .sort({ updated_at: -1 })
-    .limit(paginate.setLimit(args))
-    .skip(paginate.setSkip(args))
     .exec();
 
   let urunler = await mongoose
-    .model("Ilan")
-    .find({ isListing: true, isApproved: true, price: { $gt: req.body.min_price , $lt: req.body.max_price } })
+    .model("Product")
+    .find({
+      isListing: true,
+      isApproved: true,
+      price: { $gt: req.body.min_price, $lt: req.body.max_price }
+    })
     .sort({ updated_at: -1 })
-    .limit(paginate.setLimit(args))
-    .skip(paginate.setSkip(args))
     .exec();
 
   if (!ilanlar)
@@ -532,17 +515,13 @@ exports.search_by_price = async (req, res, next) => {
       error: "Urunler getirilemedi."
     });
 
-  let results = [];
-
-  
-
   return res.status(200).json({
     results: {
       ilanlar,
       urunler
     }
   });
-}
+};
 
 /*
   req.body.categories = ["asdasda", "asdasd"],
