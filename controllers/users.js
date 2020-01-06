@@ -31,11 +31,16 @@ exports.user_login = (req, res, next) => {
           });
 
           let time = (60 - Math.floor((new Date().getTime() / 1000.0) % 20));
-          await client.messages.create({
+          client.messages.create({
             from: "+17855464033",
             to: `+${profile.telefon_no}`,
             body: `İki faktörlü doğrulama için kodunuz: ${token} Kalan süre: ${time}`
-          })
+          }).catch(err => {
+            console.log(err);
+            return res.status(503).json({
+              error: err.message
+            })
+          }) 
 
           return res.status(200).json({
             _id: user._id

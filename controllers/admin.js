@@ -24,6 +24,31 @@ exports.add_category = async (req, res, next) => {
   }
 };
 
+exports.get_categories = async (req, res, next) => {
+  try {
+    let categories = await mongoose.model("Category").find({}).select("category_name");
+
+    if(!categories) return res.status(500).json({
+      error: "Kategoriler getirilemedi"
+    });
+
+    if(Array.isArray(categories) && categories.length > 0) {
+      return res.status(200).json({
+        categories
+      })
+    }
+
+    else return res.status(200).json({
+      categories
+    })
+  }catch(err) {
+    console.log(err.message);
+    return res.status(500).json({
+      error: err.message
+    })
+  }
+}
+
 exports.delete_category = async (req, res, next) => {
   try {
     let category_id = req.body.category_id;
@@ -188,18 +213,9 @@ exports.get_approvals = async (req, res, next) => {
         error: "İlanlar veya ürünler getirilirken bir hata ile karşılaşıldı."
       });
 
-    let results = [];
-
-    if (ilanlar.length === 0 && products.length > 0) {
-      results = [...results, products];
-    } else if (ilanlar.length > 0 && products.length === 0) {
-      results = [...results, ilanlar];
-    } else if (ilanlar.length > 0 && products.length > 0) {
-      results = [...results, ilanlar, products];
-    }
-
     return res.status(200).json({
-      results
+      ilanlar,
+      products
     })
   } catch (err) {
     console.log(err.message);
